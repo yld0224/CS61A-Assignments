@@ -1,4 +1,5 @@
 from operator import add, mul
+import math
 
 square = lambda x: x * x
 
@@ -31,7 +32,11 @@ def product(n, term):
     >>> product(3, triple)    # 1*3 * 2*3 * 3*3
     162
     """
-    "*** YOUR CODE HERE ***"
+    i,bas = 0,1
+    while(i < n):
+        bas = bas * term(i + 1)
+        i = i + 1
+    return bas
 
 
 def accumulate(fuse, start, n, term):
@@ -53,8 +58,19 @@ def accumulate(fuse, start, n, term):
     >>> accumulate(lambda x, y: x + y + 1, 2, 3, square)
     19
     """
-    "*** YOUR CODE HERE ***"
+    ans,i=start,0
+    while(i < n):
+        ans=fuse(ans,term(i+1))
+        i=i+1
+    return ans
+    
 
+def m_sum(n,term):
+    s = 0
+    for i in range (n):
+        s += term(i+1)
+    return s
+        
 
 def summation_using_accumulate(n, term):
     """Returns the sum: term(1) + ... + term(n), using accumulate.
@@ -68,13 +84,18 @@ def summation_using_accumulate(n, term):
     >>> [type(x).__name__ for x in ast.parse(inspect.getsource(summation_using_accumulate)).body[0].body]
     ['Expr', 'Return']
     """
-    return ____
+    return m_sum(n,term)
 
+def m_product(n,term):
+    ans=1
+    for i in range(n):
+        ans = ans * term(i+1)
+    return ans
 
 def product_using_accumulate(n, term):
     """Returns the product: term(1) * ... * term(n), using accumulate.
 
-    >>> product_using_accumulate(4, square) # square(1) * square(2) * square(3) * square()
+    >>> product_using_accumulate(4, square) # square(1) * square(2) * square(3) * square(4)
     576
     >>> product_using_accumulate(6, triple) # triple(1) * triple(2) * ... * triple(5) * triple(6)
     524880
@@ -83,7 +104,7 @@ def product_using_accumulate(n, term):
     >>> [type(x).__name__ for x in ast.parse(inspect.getsource(product_using_accumulate)).body[0].body]
     ['Expr', 'Return']
     """
-    return ____
+    return m_product(n,term)
 
 
 def make_repeater(f, n):
@@ -99,5 +120,9 @@ def make_repeater(f, n):
     >>> make_repeater(square, 3)(5) # square(square(square(5)))
     390625
     """
-    "*** YOUR CODE HERE ***"
-
+    def repeater(x):
+        result = x
+        for i in range(n):
+            result = f(result)
+        return result
+    return repeater
