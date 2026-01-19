@@ -26,7 +26,14 @@ def insert_items(s, before, after):
     >>> large_s3 is large_s
     True
     """
-    "*** YOUR CODE HERE ***"
+    i = 0
+    while i < len(s):
+        if s[i] == before:
+            s.insert(i+1,after)
+            i += 2 
+        else:
+            i += 1
+    return s
 
 
 def group_by(s, fn):
@@ -40,12 +47,12 @@ def group_by(s, fn):
     {9: [-3, 3], 4: [-2, 2], 1: [-1, 1], 0: [0]}
     """
     grouped = {}
-    for ____ in ____:
-        key = ____
+    for i in s:
+        key = fn(i)
         if key in grouped:
-            ____
+            grouped[key].append(i)
         else:
-            grouped[key] = ____
+            grouped[key] = [i]
     return grouped
 
 
@@ -70,7 +77,11 @@ def count_occurrences(t, n, x):
     >>> count_occurrences(v, 6, 6)
     2
     """
-    "*** YOUR CODE HERE ***"
+    cnt = 0
+    for _ in range (n):
+        if next(t) == x:
+            cnt += 1
+    return cnt
 
 
 def repeated(t, k):
@@ -129,13 +140,18 @@ def sprout_leaves(t, leaves):
           1
           2
     """
-    "*** YOUR CODE HERE ***"
-
+    if is_leaf(t):
+        for i in range (len(leaves)):
+            t.append([leaves[i]])
+        return
+    for branch in branches(t):
+        sprout_leaves(branch,leaves)
+   
+    return t
 
 def partial_reverse(s, start):
     """Reverse part of a list in-place, starting with start up to the end of
     the list.
-
     >>> a = [1, 2, 3, 4, 5, 6, 7]
     >>> partial_reverse(a, 2)
     >>> a
