@@ -25,15 +25,20 @@ class Frame:
 
     def define(self, symbol, value):
         """Define Scheme SYMBOL to have VALUE."""
-        # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 1
+        self.bindings[symbol] = value
 
     def lookup(self, symbol):
         """Return the value bound to SYMBOL. Errors if SYMBOL is not found."""
-        # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 1
+        frame = self
+        val = None
+        while frame != None:
+            if symbol in frame.bindings:
+                val = frame.bindings[symbol]
+                break
+            else:
+                frame = frame.parent
+        if val != None:
+            return val
         raise SchemeError('unknown identifier: {0}'.format(symbol))
 
 
@@ -50,9 +55,12 @@ class Frame:
         """
         if len(formals) != len(vals):
             raise SchemeError('Incorrect number of arguments to function call')
-        # BEGIN PROBLEM 8
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 8
+        frame = Frame(self)
+        foo,val = formals,vals
+        while foo != nil:
+            frame.bindings[foo.first] = val.first
+            foo,val = foo.rest,val.rest
+        return frame
 
 ##############
 # Procedures #

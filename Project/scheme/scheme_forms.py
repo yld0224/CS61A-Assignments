@@ -34,15 +34,23 @@ def do_define_form(expressions, env):
     signature = expressions.first
     if scheme_symbolp(signature):
         # assigning a name to a value e.g. (define x (+ 1 2))
-        validate_form(expressions, 2, 2) # Checks that expressions is a list of length exactly 2
-        # BEGIN PROBLEM 4
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 4
+        validate_form(expressions, 2, 2) 
+        val = scheme_eval(expressions.rest.first,env)
+        env.bindings[signature] = val
+        return signature
     elif isinstance(signature, Pair) and scheme_symbolp(signature.first):
         # defining a named procedure e.g. (define (f x y) (+ x y))
-        # BEGIN PROBLEM 10
-        "*** YOUR CODE HERE ***"
-        # END PROBLEM 10
+        func_name = signature.first
+        foo = signature.rest
+        while foo != nil:
+            if not scheme_symbolp(foo.first):
+                raise SchemeError("Invalid form of function formals {0}".format(foo.first))
+            foo = foo.rest
+        if not isinstance(expressions.rest,Pair):
+            raise SchemeError("Invalid form of function body {0}".format(expressions.rest))
+        procedure = LambdaProcedure(signature.rest,expressions.rest,env)
+        env.bindings[func_name] = procedure
+        return func_name
     else:
         bad_signature = signature.first if isinstance(signature, Pair) else signature
         raise SchemeError('non-symbol: {0}'.format(bad_signature))
@@ -54,10 +62,8 @@ def do_quote_form(expressions, env):
     >>> do_quote_form(read_line("((+ x 2))"), env) # evaluating (quote (+ x 2))
     Pair('+', Pair('x', Pair(2, nil)))
     """
-    validate_form(expressions, 1, 1)
-    # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 5
+    validate_form(expressions, 1, 1) 
+    return expressions.first
 
 def do_begin_form(expressions, env):
     """Evaluate a begin form.
@@ -81,9 +87,8 @@ def do_lambda_form(expressions, env):
     validate_form(expressions, 2)
     formals = expressions.first
     validate_formals(formals)
-    # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 7
+    ret = LambdaProcedure(formals,expressions.rest,env)
+    return ret #capture current env into a clousure
 
 def do_if_form(expressions, env):
     """Evaluate an if form.
@@ -114,9 +119,15 @@ def do_and_form(expressions, env):
     4
     False
     """
-    # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 12
+    if expressions == nil:
+        return True
+    foo = expressions
+    while foo != nil:
+        if foo.rest == nil:
+            return scheme_eval(foo.first,env)
+        if is_scheme_false(scheme_eval(foo.first,env)):
+            return False
+        foo = foo.rest 
 
 def do_or_form(expressions, env):
     """Evaluate a (short-circuited) or form.
@@ -132,9 +143,16 @@ def do_or_form(expressions, env):
     2
     6
     """
-    # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 12
+    if expressions == nil:
+        return False
+    foo = expressions
+    while foo != nil:
+        if foo.rest == nil:
+            return scheme_eval(foo.first,env)
+        val = scheme_eval(foo.first,env)
+        if is_scheme_true(val):
+            return val
+        foo = foo.rest
 
 def do_cond_form(expressions, env):
     """Evaluate a cond form.
@@ -152,9 +170,9 @@ def do_cond_form(expressions, env):
         else:
             test = scheme_eval(clause.first, env)
         if is_scheme_true(test):
-            # BEGIN PROBLEM 13
-            "*** YOUR CODE HERE ***"
-            # END PROBLEM 13
+            if clause.rest != nil:
+                return eval_all(clause.rest,env)
+            return test
         expressions = expressions.rest
 
 def do_let_form(expressions, env):
@@ -176,9 +194,18 @@ def make_let_frame(bindings, env):
     if not scheme_listp(bindings):
         raise SchemeError('bad bindings list in let form')
     names = vals = nil
-    # BEGIN PROBLEM 14
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 14
+    foo = bindings
+    while foo != nil:
+        bar = foo.first
+        validate_form(bar,2)
+        tmp = bar.rest
+        if tmp.rest == nil:
+            sym,val = bar.first,scheme_eval(tmp.first,env)
+        else:
+            sym,val = bar.first,scheme_eval(tmp,env)
+        names,vals = Pair(sym,names),Pair(val,vals)
+        foo = foo.rest
+    validate_formals(names)
     return env.make_child_frame(names, vals)
 
 
@@ -218,9 +245,8 @@ def do_mu_form(expressions, env):
     validate_form(expressions, 2)
     formals = expressions.first
     validate_formals(formals)
-    # BEGIN PROBLEM 11
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 11
+    ret = MuProcedure(formals,expressions.rest)
+    return ret #dynamic scope 
 
 
 

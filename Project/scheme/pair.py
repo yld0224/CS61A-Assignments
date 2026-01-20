@@ -40,13 +40,14 @@ class Pair:
             return False
         return self.first == p.first and self.rest == p.rest
 
-    def map(self, fn):
+    def map(self, fn,env=None):
         """Return a Scheme list after mapping Python function FN to SELF."""
-        mapped = fn(self.first)
+        mapped = fn(self.first,env)
         if self.rest is nil or isinstance(self.rest, Pair):
-            return Pair(mapped, self.rest.map(fn))
+            return Pair(mapped, self.rest.map(fn,env))
         else:
             raise TypeError('ill-formed list (cdr is a promise)')
+    
 
     def flatmap(self, fn):
         """Return a Scheme list after flatmapping Python function FN to SELF."""
@@ -70,9 +71,9 @@ class nil:
     def __len__(self):
         return 0
 
-    def map(self, fn):
+    def map(self, fn,env=None):
         return self
-
+    
     def flatmap(self, fn):
         return self
 
